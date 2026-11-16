@@ -1,0 +1,71 @@
+{
+  "name": "hotel-asthara",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && node scripts/build-image-manifest.mjs && next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:constraints": "prisma db execute --file prisma/sql/constraints.sql --schema prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:setup": "npm run db:push && npm run db:constraints && npm run db:seed",
+    "db:studio": "prisma studio",
+    "images:manifest": "node scripts/build-image-manifest.mjs"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
+    "@prisma/adapter-pg": "^6.19.3",
+    "@prisma/client": "^6.19.0",
+    "@radix-ui/react-accordion": "^1.2.0",
+    "@radix-ui/react-dialog": "^1.1.0",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-popover": "^1.3.1",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.2.1",
+    "bcryptjs": "^3.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.0.0",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.0",
+    "next-auth": "5.0.0-beta.32",
+    "next-intl": "^4.0.0",
+    "pg": "^8.23.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-easy-crop": "^5.4.2",
+    "react-hook-form": "^7.54.0",
+    "server-only": "^0.0.1",
+    "sonner": "^2.0.0",
+    "tailwind-merge": "^3.0.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.5.0",
+    "prettier": "^3.4.0",
+    "prettier-plugin-tailwindcss": "^0.6.0",
+    "prisma": "^6.19.0",
+    "tailwindcss": "^4.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

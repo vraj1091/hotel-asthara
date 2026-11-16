@@ -1,0 +1,410 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Hotel Asthara design tokens – strict 60 / 30 / 10
+     60%  Ivory  – page, cards, large surfaces
+     30%  Navy   – text, navbar, footer, dark feature bands
+     10%  Gold   – CTAs, active states, icons, hairlines (never body text on ivory)
+   Every other shade below is a tint made from these three with color-mix().
+   Components never contain hex values; they use the utilities generated here
+   (bg-bg, text-ink, bg-accent, border-line, text-muted …).
+   ────────────────────────────────────────────────────────────────────────── */
+@theme static {
+  /* Primitives – the only place hex values appear */
+  --color-ivory: #f7f3ec;
+  --color-navy: #0b1b2b;
+  --color-gold: #c8a24b;
+
+  /* Semantic tokens (flip inside .theme-dark) */
+  --color-bg: var(--color-ivory);
+  --color-ink: var(--color-navy);
+  --color-accent: var(--color-gold);
+
+  /* Derived tints */
+  --color-surface-2: color-mix(in oklab, var(--color-ink) 4%, var(--color-bg));
+  --color-surface-3: color-mix(in oklab, var(--color-ink) 9%, var(--color-bg));
+  --color-line: color-mix(in oklab, var(--color-ink) 14%, var(--color-bg));
+  --color-line-strong: color-mix(in oklab, var(--color-ink) 32%, var(--color-bg));
+  --color-muted: color-mix(in oklab, var(--color-ink) 72%, var(--color-bg));
+  --color-accent-soft: color-mix(in oklab, var(--color-accent) 18%, var(--color-bg));
+  --color-accent-strong: color-mix(in oklab, var(--color-accent) 82%, var(--color-ink));
+  --color-on-accent: var(--color-navy); /* navy on gold ≈ 7:1, passes AA for body text */
+
+  /* Muted status colours – admin only, the single permitted exception to the palette */
+  --color-success: color-mix(in oklab, #2f7d5b 85%, var(--color-ink));
+  --color-warning: color-mix(in oklab, #a8741a 85%, var(--color-ink));
+  --color-danger: color-mix(in oklab, #a33a3a 85%, var(--color-ink));
+
+  --shadow-soft:
+    0 1px 2px color-mix(in oklab, var(--color-ink) 6%, transparent),
+    0 14px 34px -14px color-mix(in oklab, var(--color-ink) 22%, transparent);
+  --shadow-lift:
+    0 2px 4px color-mix(in oklab, var(--color-ink) 8%, transparent),
+    0 28px 50px -18px color-mix(in oklab, var(--color-ink) 34%, transparent);
+
+  --radius-card: 1.25rem;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Type scale – Playfair for display, Inter for text. Fluid between 360px and 1280px. */
+  --text-display: clamp(2.75rem, 1.6rem + 5.2vw, 5.75rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: clamp(2.25rem, 1.5rem + 3vw, 3.75rem);
+  --text-h1--line-height: 1.08;
+  --text-h2: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: clamp(1.25rem, 1.1rem + 0.7vw, 1.65rem);
+  --text-h3--line-height: 1.25;
+}
+
+@theme inline {
+  --font-heading: var(--font-playfair), var(--font-deva-serif), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-inter), var(--font-deva-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  /* Gold focus ring with a navy/ivory inner line so it clears 3:1 on both themes */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px var(--color-accent);
+  }
+  :where(input, select, textarea):focus-visible {
+    outline-offset: 0;
+  }
+}
+
+@layer components {
+  /* Dark scope: navy surface, ivory ink, same gold. Used for feature bands, header, footer and admin dark mode. */
+  .theme-dark {
+    --color-bg: var(--color-navy);
+    --color-ink: var(--color-ivory);
+    --color-surface-2: color-mix(in oklab, var(--color-ink) 6%, var(--color-bg));
+    --color-surface-3: color-mix(in oklab, var(--color-ink) 12%, var(--color-bg));
+    --color-line: color-mix(in oklab, var(--color-ink) 16%, var(--color-bg));
+    --color-line-strong: color-mix(in oklab, var(--color-ink) 36%, var(--color-bg));
+    --color-muted: color-mix(in oklab, var(--color-ink) 74%, var(--color-bg));
+    --color-accent-soft: color-mix(in oklab, var(--color-accent) 20%, var(--color-bg));
+    --color-accent-strong: color-mix(in oklab, var(--color-accent) 85%, var(--color-ink));
+    color: var(--color-ink);
+    background-color: var(--color-bg);
+    color-scheme: dark;
+  }
+  .hairline {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-accent) 18%,
+      var(--color-accent) 82%,
+      transparent
+    );
+  }
+  .hairline-solid {
+    height: 1px;
+    border: 0;
+    background: var(--color-accent);
+    opacity: 0.55;
+  }
+  .card {
+    border-radius: var(--radius-card);
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-soft);
+  }
+  .skeleton {
+    border-radius: 0.75rem;
+    background: linear-gradient(
+      100deg,
+      var(--color-surface-2) 30%,
+      var(--color-surface-3) 50%,
+      var(--color-surface-2) 70%
+    );
+    background-size: 220% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+  .container-page {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+  .section-y {
+    padding-block: clamp(4rem, 3rem + 5vw, 8rem);
+  }
+  .link-underline {
+    background-image: linear-gradient(var(--color-accent), var(--color-accent));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0 1px;
+    transition: background-size 0.35s var(--ease-out-soft);
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+/* ───────── The one orchestrated moment: hero arch draws itself, headline rises line by line ───────── */
+@keyframes draw {
+  from {
+    stroke-dashoffset: var(--len, 1200);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes rise {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes glow-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+.arch-stroke {
+  stroke-dasharray: var(--len, 1200);
+  stroke-dashoffset: var(--len, 1200);
+  animation: draw 2.2s var(--ease-out-soft) forwards;
+  animation-delay: var(--delay, 0s);
+}
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.line-rise {
+  display: block;
+  animation: rise 1.05s var(--ease-out-soft) both;
+  animation-delay: var(--delay, 0s);
+}
+.glow-in {
+  animation: glow-in 1.6s var(--ease-out-soft) both;
+  animation-delay: var(--delay, 0.4s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .arch-stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .line-rise,
+  .glow-in {
+    animation: none;
+  }
+  .skeleton {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes acc-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes acc-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+/* ───────── Advanced interactions ───────── */
+
+/* Gold edge that follows the pointer. Coordinates come from <SpotlightGroup>. */
+.spot {
+  position: relative;
+}
+.spot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: radial-gradient(
+    260px circle at var(--mx, -400px) var(--my, -400px),
+    var(--color-accent),
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+}
+:hover > .spot::after,
+:hover > * > .spot::after {
+  opacity: 1;
+}
+
+/* Hero arch: layers lean towards the pointer by different amounts (set by <PointerParallax>). */
+.plx-1,
+.plx-2,
+.plx-3 {
+  transition: transform 0.7s var(--ease-out-soft);
+}
+.plx-1 {
+  transform: translate(calc(var(--px, 0) * -10px), calc(var(--py, 0) * -8px));
+}
+.plx-2 {
+  transform: translate(calc(var(--px, 0) * 8px), calc(var(--py, 0) * 6px));
+}
+.plx-3 {
+  transform: translate(calc(var(--px, 0) * 22px), calc(var(--py, 0) * 14px));
+}
+
+/* Live indicator beside the clock */
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+.live-ping {
+  opacity: 0.7;
+  animation: ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Header progress line and hero drift follow the scroll position: no JavaScript, no layout work. */
+.scroll-progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-accent);
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+}
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes drift {
+  to {
+    transform: translateY(7%) scale(1.05);
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .scroll-progress {
+    animation: progress linear both;
+    animation-timeline: scroll(root);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-drift {
+      animation: drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-ping {
+    animation: none;
+  }
+  .plx-1,
+  .plx-2,
+  .plx-3 {
+    transform: none;
+  }
+}
+
+/* When the header shows the compact stay search (homepage, after the hero), its own Book now button is redundant. */
+@media (min-width: 1024px) {
+  :root[data-header-search] .header-book {
+    display: none;
+  }
+}
