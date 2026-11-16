@@ -1,0 +1,33 @@
+name: Keep database awake
+
+# Neon's free plan suspends the database after 5 idle minutes, and waking it adds a short delay to the next
+# visit. This pings the site's health check every 4 minutes from 11:00 to about 21:15 India time, when guests
+# browse and book, and lets the database sleep at night.
+#
+# Budget: the free plan has 100 compute-hours a month. Awake ~10.5 h/day x 0.25 CU x 31 days = ~81, which
+# leaves room for night-time visits. Do NOT widen the window much: running out suspends the database (and
+# the website) until the next month. Each run lasts 75 minutes and runs start hourly, so a late start by
+# GitHub (common for scheduled jobs) does not leave a gap.
+
+on:
+  schedule:
+    - cron: "30 5-14 * * *" # hourly at :30 from 05:30 to 14:30 UTC = 11:00 to 20:00 IST
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Ping the health check every 4 minutes for 75 minutes
+        env:
+          URL: https://hotel-asthara.vercel.app/api/health
+        run: |
+          end=$(( $(date +%s) + 75 * 60 ))
+          while [ "$(date +%s)" -lt "$end" ]; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$URL" || echo "000")
+            echo "$(date -u +%H:%M:%S) UTC  HTTP $code"
+            sleep 240
+          done
