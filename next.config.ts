@@ -45,6 +45,11 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion", "date-fns"],
   },
+  // Prisma's query compiler (engineType "client") reads query_compiler_bg.wasm from disk at runtime. File tracing
+  // does not see that read, so serverless hosts (Vercel) would ship functions without it. Include it everywhere.
+  outputFileTracingIncludes: {
+    "/**": ["./node_modules/.prisma/client/*.wasm", "./node_modules/.prisma/client/*.js", "./node_modules/.prisma/client/schema.prisma"],
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
