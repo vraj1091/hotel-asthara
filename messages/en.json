@@ -235,7 +235,14 @@
       "paymentUnverified": "We could not verify the payment. If money was taken, the front desk will confirm your booking shortly.",
       "cannotSwitch": "This booking can no longer be changed online. Please call the front desk.",
       "cannotCancel": "This booking can no longer be cancelled online. Please call the front desk.",
-      "lookupFailed": "No booking matches that reference and phone number or email."
+      "lookupFailed": "No booking matches that reference and phone number or email.",
+      "promoEmpty": "Enter a promo code.",
+      "promoInvalid": "That promo code is not valid.",
+      "promoNotYet": "That promo code is not active yet.",
+      "promoExpired": "That promo code has expired.",
+      "promoUsedUp": "That promo code has been fully used.",
+      "promoMinNights": "That promo code needs a stay of at least {nights} nights.",
+      "promoMinAmount": "That promo code needs a booking of at least ₹{amount} before tax."
     }
   },
   "manage": {

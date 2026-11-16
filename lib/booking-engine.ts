@@ -68,9 +68,10 @@ export async function releaseExpiredHolds(client: Tx | typeof db = db) {
 
 /* ───────── Coupons ───────── */
 
+/** `reason` is a translation key under "checkout.errors" (with `params`) for the guest checkout; `error` is the English text. */
 export type CouponCheck =
   | { ok: true; couponId: string; code: string; discountPaise: number; label: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; reason: string; params?: Record<string, string | number> };
 
 export async function checkCoupon(
   client: Tx | typeof db,
@@ -78,24 +79,28 @@ export async function checkCoupon(
   ctx: { subtotalPaise: number; nights: number },
 ): Promise<CouponCheck> {
   const code = rawCode.trim().toUpperCase();
-  if (!code) return { ok: false, error: "Enter a promo code." };
+  if (!code) return { ok: false, error: "Enter a promo code.", reason: "promoEmpty" };
   const now = new Date();
   const coupon = await client.coupon.findFirst({ where: { code, deletedAt: null } });
-  if (!coupon || !coupon.active) return { ok: false, error: "That promo code is not valid." };
+  if (!coupon || !coupon.active) return { ok: false, error: "That promo code is not valid.", reason: "promoInvalid" };
   if (coupon.startsAt && coupon.startsAt > now)
-    return { ok: false, error: "That promo code is not active yet." };
-  if (coupon.endsAt && coupon.endsAt < now) return { ok: false, error: "That promo code has expired." };
+    return { ok: false, error: "That promo code is not active yet.", reason: "promoNotYet" };
+  if (coupon.endsAt && coupon.endsAt < now) return { ok: false, error: "That promo code has expired.", reason: "promoExpired" };
   if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit)
-    return { ok: false, error: "That promo code has been fully used." };
+    return { ok: false, error: "That promo code has been fully used.", reason: "promoUsedUp" };
   if (ctx.nights < coupon.minNights)
     return {
       ok: false,
       error: `That promo code needs a stay of at least ${coupon.minNights} nights.`,
+      reason: "promoMinNights",
+      params: { nights: coupon.minNights },
     };
   if (ctx.subtotalPaise < coupon.minAmountPaise)
     return {
       ok: false,
       error: `That promo code needs a booking of at least ₹${Math.round(coupon.minAmountPaise / 100).toLocaleString("en-IN")} before tax.`,
+      reason: "promoMinAmount",
+      params: { amount: Math.round(coupon.minAmountPaise / 100).toLocaleString("en-IN") },
     };
   const discountPaise = couponDiscount(coupon, ctx.subtotalPaise);
   const label =

@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { ActionError, runAction, type ActionResult } from "@/lib/action";
 import { writeAudit } from "@/lib/audit";
@@ -79,7 +80,10 @@ export async function quoteBooking(input: {
       if (check.ok) {
         coupon = { code: check.code, label: check.label };
         discount = check.discountPaise;
-      } else couponError = check.error;
+      } else {
+        const t = await getTranslations("checkout");
+        couponError = t.has(`errors.${check.reason}`) ? t(`errors.${check.reason}`, check.params) : check.error;
+      }
     }
     const totals = applyDiscount(subtotal, tax, discount);
     return {
