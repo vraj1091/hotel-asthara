@@ -53,25 +53,49 @@ export async function prepareUpload(file: File): Promise<File> {
   }
 }
 
+/** Hosts cap request bodies (Vercel: 4.5 MB), so uploads go in batches that stay below this. */
+const MAX_REQUEST_BYTES = 4_000_000;
+
 export async function uploadMedia(
   files: File[],
   opts: { folder: string; alt?: string; crop?: Area | null } = { folder: "general" },
 ): Promise<{ items: MediaItem[]; errors: string[] }> {
-  const fd = new FormData();
-  for (const f of files) fd.append("files", await prepareUpload(f));
-  fd.set("folder", opts.folder);
-  if (opts.alt) fd.set("alt", opts.alt);
-  if (opts.crop) fd.set("crop", JSON.stringify(opts.crop));
-  const res = await fetch("/api/admin/media", { method: "POST", body: fd });
-  let json: { items?: MediaItem[]; errors?: string[]; error?: string } = {};
-  try {
-    json = await res.json();
-  } catch {
-    /* non-JSON error page */
+  const prepared = await Promise.all(files.map(prepareUpload));
+  const items: MediaItem[] = [];
+  const errors: string[] = [];
+  const batches: File[][] = [];
+  for (const f of prepared) {
+    if (f.size > MAX_REQUEST_BYTES) {
+      errors.push(`"${f.name}" is too large to upload (${formatBytes(f.size)}). Save it as a JPG under 4 MB and try again.`);
+      continue;
+    }
+    const last = batches.at(-1);
+    if (last && last.reduce((s, x) => s + x.size, 0) + f.size <= MAX_REQUEST_BYTES) last.push(f);
+    else batches.push([f]);
   }
-  if (!res.ok && !json.items?.length)
-    return { items: [], errors: json.errors?.length ? json.errors : [json.error ?? "Upload failed. Try again."] };
-  return { items: json.items ?? [], errors: json.errors ?? [] };
+  for (const batch of batches) {
+    const fd = new FormData();
+    for (const f of batch) fd.append("files", f);
+    fd.set("folder", opts.folder);
+    if (opts.alt) fd.set("alt", opts.alt);
+    if (opts.crop) fd.set("crop", JSON.stringify(opts.crop));
+    let json: { items?: MediaItem[]; errors?: string[]; error?: string } = {};
+    let res: Response;
+    try {
+      res = await fetch("/api/admin/media", { method: "POST", body: fd });
+      json = await res.json().catch(() => ({}));
+    } catch {
+      errors.push("Upload failed. Check your connection and try again.");
+      continue;
+    }
+    if (res.status === 413) errors.push(`${batch.map((f) => `"${f.name}"`).join(", ")}: too large to upload. Use smaller photos.`);
+    else if (!res.ok && !json.items?.length) errors.push(...(json.errors?.length ? json.errors : [json.error ?? "Upload failed. Try again."]));
+    else {
+      items.push(...(json.items ?? []));
+      errors.push(...(json.errors ?? []));
+    }
+  }
+  return { items, errors };
 }
 
 export async function fetchMedia(folder = "all", q = ""): Promise<MediaItem[]> {

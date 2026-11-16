@@ -299,7 +299,7 @@ export function MediaLibrary({ storage }: { storage: string }) {
               Upload photos
             </h2>
             <p className="text-muted text-sm">
-              Drag photos here or choose files. JPG, PNG, WebP, AVIF or HEIC up to 15 MB. Each photo is resized, stripped of
+              Drag photos here or choose files. JPG, PNG or WebP up to 15 MB, AVIF or HEIC up to 4 MB. Each photo is resized, stripped of
               location data and saved as WebP. Storage: {storage}.
             </p>
           </div>

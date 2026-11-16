@@ -86,7 +86,7 @@ export function MediaLibraryDialog({
       <DialogContent className="flex max-h-[92dvh] max-w-5xl flex-col">
         <DialogTitle className="font-heading pr-10 text-xl">{title}</DialogTitle>
         <DialogDescription className="text-muted mt-1 text-sm">
-          Pick from the library or upload new photos. JPG, PNG, WebP or HEIC up to 15 MB; they are compressed
+          Pick from the library or upload new photos. JPG, PNG or WebP up to 15 MB (HEIC up to 4 MB); they are compressed
           automatically.
         </DialogDescription>
         <div className="mt-4 flex flex-wrap items-center gap-2">
